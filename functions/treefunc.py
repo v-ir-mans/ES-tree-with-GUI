@@ -12,6 +12,8 @@ from collections import defaultdict
 
 from PIL import Image, ImageDraw, ImageFont
 
+import svgwrite
+
 def calcEntropy(biežumi:list):
     # Nopietni?    ^
 
@@ -309,7 +311,8 @@ class Tree:
         return mermaid_string
     
 
-    def visualize(self):
+    # Example pug function that organizes data into lists
+    def pug(self):
         keys = list(self.nodes.keys())
         
         # Calculate height (number of unique key lengths)
@@ -326,86 +329,96 @@ class Tree:
         # Calculate width (maximum number of keys in any level)
         width = max(len(level) for level in levels)
         
-        # Set image dimensions
+        # Coordinates for all the nodes
+        coords = {}
+        
+        # Calculate node coordinates (x, y positions)
         img_width = max(800, width * 200)  # Minimum width of 800 pixels
         img_height = height * 200  # Increased height for better visibility
-        
-        # Create a white image
-        img = Image.new('RGB', (img_width, img_height), color=(105, 105, 105))
-        draw = ImageDraw.Draw(img)
-        
-        coords = {}
-
         for row, level in enumerate(levels):
             y = (img_height / height) * row + (img_height / height / 2)
-            
-            # Improved x-coordinate calculation for justification
             if len(level) == 1:
                 x_positions = [img_width / 2]
             else:
                 spacing = img_width / (len(level) + 1)
                 x_positions = [spacing * (i + 1) for i in range(len(level))]
-            
             for col, node_key in enumerate(level):
                 x = x_positions[col]
-                coords[node_key]=(int(x),int(y))
-        
-    
-        
-        stack=[self.structure]
+                coords[node_key] = (int(x), int(y))
 
-        while len(stack)>0:
-            cur_stack_item=stack[0]
-
+        # Create lists of things to be drawn: lines, nodes, text
+        lines = []  # Holds all the lines between nodes
+        stack = [self.structure]
+        while stack:
+            cur_stack_item = stack.pop(0)
             for parent, children in cur_stack_item.items():
                 for c, c_children in children.items():
-                    
-                    draw.line(coords[parent] + coords[c], fill="white", width=5)
+                    lines.append((coords[parent], coords[c]))  # Line between parent and child
+                    if c_children:
+                        stack.append({c: c_children})
 
-                    if c_children!={}:
-                        stack.append({c:c_children})
-
-            stack.pop(0)
-        
-        radius=40
-
-        # Set the font size (you can adjust it as needed)
-        font_size = 25
-        font = ImageFont.truetype(r"files\fonts\Roboto\Roboto-Medium.ttf", font_size)  # Adjust the font path as necessary
-
+        nodes = []  # Holds node info (position, text, color)
         for n, c in coords.items():
-
-            node=self.nodes[n]
-
+            node = self.nodes[n]
             if node.is_leaf:
-                text=node.klase
-                elipse_col=(240, 255, 240)
-                text_col="black"
+                text = node.klase
+                elipse_col = (240, 255, 240)
+                text_col = "black"
             else:
-                
-                elipse_col=(105, 105, 105)
-                text_col="white"
+                elipse_col = (105, 105, 105)
+                text_col = "white"
+                text = node.splitting_attrib or node.name
+            nodes.append((c, text, elipse_col, text_col))  # (position, text, ellipse color, text color)
+        
+        return lines, nodes, img_width, img_height
 
-                if node.splitting_attrib:
-                
-                    text=node.splitting_attrib
+    # A: visualize function for PIL (returns a PIL image)
+    def visualize(self):
+        lines, nodes, w, h = self.pug()
 
-                else:
-
-                    text=node.name
-
-            draw.ellipse((c[0]-radius, c[1]-radius, c[0]+radius, c[1]+radius), fill=elipse_col)
-
-            # Calculate the text position (centered above the node)
-            text_x = c[0]
-            text_y = c[1]  # 10 pixels above the ellipse
-
-
-            # Draw the node label on top of the ellipse
-            draw.text((text_x, text_y), text, fill=text_col, anchor="mm", font=font)
-
+        # Set up image dimensions
+        img_width = w
+        img_height = h
+        img = Image.new('RGB', (img_width, img_height), color=(105, 105, 105))
+        draw = ImageDraw.Draw(img)
+        
+        # Draw the lines first (edges between nodes)
+        for line in lines:
+            draw.line(line, fill="white", width=5)
+        
+        # Draw the nodes (ellipses) and the text
+        radius = 40
+        font_size = 25
+        font = ImageFont.truetype(r"files\fonts\Roboto\Roboto-Medium.ttf", font_size)
+        
+        for node in nodes:
+            (x, y), text, ellipse_color, text_color = node
+            draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=ellipse_color)
+            draw.text((x, y), text, fill=text_color, anchor="mm", font=font)
+        
         return img
 
+    # B: visualizeSVG function for svgwrite (returns an svgwrite object)
+    def visualizeSVG(self):
+        lines, nodes, w, h = self.pug()
+
+        # Set up SVG drawing dimensions
+        dwg = svgwrite.Drawing(size=(w, h))
+        
+        # Draw the lines first (edges between nodes)
+        for line in lines:
+            dwg.add(dwg.line(start=line[0], end=line[1], stroke=svgwrite.rgb(255, 255, 255), stroke_width=5))
+        
+        # Draw the nodes (circles) and the text
+        radius = 40
+        font_size = 25
+        
+        for node in nodes:
+            (x, y), text, ellipse_color, text_color = node
+            dwg.add(dwg.circle(center=(x, y), r=radius, fill=svgwrite.rgb(*ellipse_color)))
+            dwg.add(dwg.text(text, insert=(x, y), text_anchor="middle", alignment_baseline="middle", font_size=font_size, fill=svgwrite.rgb(0, 0, 0) if text_color == 'black' else 'white'))
+        
+        return dwg
 
 
 

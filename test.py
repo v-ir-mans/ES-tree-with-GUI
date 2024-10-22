@@ -5,3 +5,9 @@ tree.train()
 img=tree.visualize()
 
 img.show()
+
+img=tree.visualize()
+
+img=tree.visualizeSVG()
+
+img.saveas('output.svg')
