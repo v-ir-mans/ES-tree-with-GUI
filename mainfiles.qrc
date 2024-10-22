@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/files">
+        <file>files/hearts-149186_1280.png</file>
+        <file>files/MysteryQuest-Regular.ttf</file>
+    </qresource>
+</RCC>
