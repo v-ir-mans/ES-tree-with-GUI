@@ -10,7 +10,7 @@ import json
 
 from collections import defaultdict
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 def calcEntropy(biežumi:list):
     # Nopietni?    ^
@@ -172,9 +172,11 @@ class Node:
       self.name = name
       self.training_entries=training_entries
       self.splitting_attrib=splitting_attrib
+      self.is_leaf=self.training_entries.isUniform()
+      self.klase=self.training_entries.getKlases()[0]
     
     def __str__(self) -> str:
-        return f"node.{self.name} split by {self.splitting_attrib} has {len(self.training_entries)} and is {self.training_entries.isUniform()}"
+        return f"node.{self.name} split by {self.splitting_attrib} has {len(self.training_entries)} and is {self.is_leaf}"
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -329,7 +331,7 @@ class Tree:
         img_height = height * 200  # Increased height for better visibility
         
         # Create a white image
-        img = Image.new('RGB', (img_width, img_height), color='white')
+        img = Image.new('RGB', (img_width, img_height), color=(105, 105, 105))
         draw = ImageDraw.Draw(img)
         
         coords = {}
@@ -358,17 +360,49 @@ class Tree:
             for parent, children in cur_stack_item.items():
                 for c, c_children in children.items():
                     
-                    draw.line(coords[parent] + coords[c], fill=128, width=3)
+                    draw.line(coords[parent] + coords[c], fill="white", width=5)
 
                     if c_children!={}:
                         stack.append({c:c_children})
 
             stack.pop(0)
         
-        radius=10
+        radius=40
+
+        # Set the font size (you can adjust it as needed)
+        font_size = 25
+        font = ImageFont.truetype(r"files\fonts\Roboto\Roboto-Medium.ttf", font_size)  # Adjust the font path as necessary
 
         for n, c in coords.items():
-            draw.ellipse((c[0]-radius, c[1]-radius, c[0]+radius, c[1]+radius), fill=(50,140, 80))
+
+            node=self.nodes[n]
+
+            if node.is_leaf:
+                text=node.klase
+                elipse_col=(240, 255, 240)
+                text_col="black"
+            else:
+                
+                elipse_col=(105, 105, 105)
+                text_col="white"
+
+                if node.splitting_attrib:
+                
+                    text=node.splitting_attrib
+
+                else:
+
+                    text=node.name
+
+            draw.ellipse((c[0]-radius, c[1]-radius, c[0]+radius, c[1]+radius), fill=elipse_col)
+
+            # Calculate the text position (centered above the node)
+            text_x = c[0]
+            text_y = c[1]  # 10 pixels above the ellipse
+
+
+            # Draw the node label on top of the ellipse
+            draw.text((text_x, text_y), text, fill=text_col, anchor="mm", font=font)
 
         return img
 
