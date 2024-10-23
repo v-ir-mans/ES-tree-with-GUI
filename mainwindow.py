@@ -3,7 +3,7 @@ import sys
 import random
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
-from PySide6.QtGui import QPixmap, QImage
+from PySide6.QtGui import QImage, QIcon
 
 from functions import buttons as bf
 from functions import treefunc as treef
@@ -169,6 +169,8 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon('icon.ico'))
+
     widget = MainWindow()
     widget.show()
     sys.exit(app.exec())

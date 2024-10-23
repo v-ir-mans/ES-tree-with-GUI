@@ -14,6 +14,20 @@ from PIL import Image, ImageDraw, ImageFont
 
 import svgwrite
 
+import os, sys
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for both source code and PyInstaller """
+    # Check if the script is being executed in a bundle (PyInstaller)
+    if hasattr(sys, '_MEIPASS'):
+        # Running in PyInstaller bundle
+        base_path = sys._MEIPASS
+    else:
+        # Running in source mode
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 def calcEntropy(biežumi:list):
     # Nopietni?    ^
 
@@ -414,7 +428,8 @@ class Tree:
         # Draw the nodes (ellipses) and the text
         radius = 100
         font_size = 45
-        font = ImageFont.truetype(r"files\fonts\Roboto\Roboto-Bold.ttf", font_size)
+        
+        font = ImageFont.truetype(resource_path(r"files/fonts/Roboto/Roboto-Bold.ttf"), font_size)
         
         for node in nodes:
             (x, y), text, is_leaf = node

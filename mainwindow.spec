@@ -5,7 +5,7 @@ a = Analysis(
     ['mainwindow.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('files/fonts/Roboto/Roboto-Bold.ttf', 'files/fonts/Roboto')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['icon.ico'],
 )
