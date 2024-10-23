@@ -609,7 +609,7 @@ class Tree:
         
         stack=[{root_id:self.nodes[root_id]}]
 
-        self.saveLogic(f"Čaviņa. Tātad jums vajag koku, ja? Tulīt būs!")
+        self.saveLogic(f"Sākas, koka izveide")
         self.saveLogic(f"Izveidoju saknes mezglu ar id {root_id}")
 
         while len(stack)>0:
@@ -617,7 +617,7 @@ class Tree:
             
             for key, node in cur_stack_item.items():
 
-                self.saveLogic(f"Aplūkoju mezglu {node} ar id {key}")
+                self.saveLogic(f"Aplūko mezglu {node} ar id {key}")
 
                 if node.is_leaf:
                     self.saveLogic(f"Tas ir lapas mezgls. Super! ☘️😃")
