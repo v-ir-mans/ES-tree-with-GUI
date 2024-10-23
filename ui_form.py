@@ -116,6 +116,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.savevisButton)
 
+        self.savevisSVGButton = QPushButton(self.horizontalLayoutWidget)
+        self.savevisSVGButton.setObjectName(u"savevisSVGButton")
+
+        self.horizontalLayout.addWidget(self.savevisSVGButton)
+
         self.saveptlButton = QPushButton(self.horizontalLayoutWidget)
         self.saveptlButton.setObjectName(u"saveptlButton")
 
@@ -145,7 +150,8 @@ class Ui_MainWindow(object):
         self.comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Test1", None))
         self.comboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"Test", None))
 
-        self.savevisButton.setText(QCoreApplication.translate("MainWindow", u"Saglap\u0101t koka vizualiz\u0101ciju", None))
+        self.savevisButton.setText(QCoreApplication.translate("MainWindow", u"Saglap\u0101t koku png", None))
+        self.savevisSVGButton.setText(QCoreApplication.translate("MainWindow", u"Saglap\u0101t koku svg", None))
         self.saveptlButton.setText(QCoreApplication.translate("MainWindow", u"Saglab\u0101t .ptl", None))
         self.mermaidButton.setText(QCoreApplication.translate("MainWindow", u"Kop\u0113t mermaid", None))
     # retranslateUi

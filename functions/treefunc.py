@@ -301,7 +301,16 @@ class Tree:
 
             for parent, children in cur_stack_item.items():
                 for c, c_children in children.items():
-                    mermaid_string+=f"\n    {parent}[{self.nodes[parent]}] --> {c}[{self.nodes[c]}]"
+
+                    parent_node=self.nodes[parent]
+                    child_node=self.nodes[c]
+
+                    if child_node.is_leaf:
+                        child_text=child_node.klase
+                    else:
+                        child_text=child_node.splitting_attrib
+                    
+                    mermaid_string+=f"\n    {parent}[{parent_node.splitting_attrib}] -->|{child_node.name}| {c}[{child_text}]"
 
                     if c_children!={}:
                         stack.append({c:c_children})
@@ -311,30 +320,26 @@ class Tree:
         return mermaid_string
     
 
-    # Example pug function that organizes data into lists
-    def pug(self):
+    def listsForVisualization(self):
         keys = list(self.nodes.keys())
         
-        # Calculate height (number of unique key lengths)
-        height = len(set(len(key) for key in keys))
-        
-        # Group keys by length
+        # Calculate height (number of unique key lengths) and group keys by length
         grouped_keys = defaultdict(list)
         for key in keys:
             grouped_keys[len(key)].append(key)
         
         # Create the final list of sublists, sorted based on the beginning of the string
         levels = [sorted(grouped_keys[length]) for length in sorted(grouped_keys.keys())]
+        height = len(levels)
         
         # Calculate width (maximum number of keys in any level)
         width = max(len(level) for level in levels)
         
         # Coordinates for all the nodes
         coords = {}
+        img_width = max(1600, width * 400)  # Minimum width of 800 pixels
+        img_height = height * 400  # Adjust height for better visibility
         
-        # Calculate node coordinates (x, y positions)
-        img_width = max(800, width * 200)  # Minimum width of 800 pixels
-        img_height = height * 200  # Increased height for better visibility
         for row, level in enumerate(levels):
             y = (img_height / height) * row + (img_height / height / 2)
             if len(level) == 1:
@@ -343,83 +348,253 @@ class Tree:
                 spacing = img_width / (len(level) + 1)
                 x_positions = [spacing * (i + 1) for i in range(len(level))]
             for col, node_key in enumerate(level):
-                x = x_positions[col]
-                coords[node_key] = (int(x), int(y))
+                coords[node_key] = (int(x_positions[col]), int(y))
 
-        # Create lists of things to be drawn: lines, nodes, text
-        lines = []  # Holds all the lines between nodes
+        # Lists to be returned: lines, nodes, mid_points, and child_names
+        lines, mid_points, child_names = [], [], []
+        
+        # Traverse the tree and calculate line positions, mid-points, and child names
         stack = [self.structure]
         while stack:
             cur_stack_item = stack.pop(0)
             for parent, children in cur_stack_item.items():
-                for c, c_children in children.items():
-                    lines.append((coords[parent], coords[c]))  # Line between parent and child
-                    if c_children:
-                        stack.append({c: c_children})
+                parent_coords = coords[parent]
+                for child, child_children in children.items():
+                    child_coords = coords[child]
+                    lines.append((parent_coords, child_coords))  # Line between parent and child
+                    
+                    # Calculate the middle point of the line
+                    mid_point = ((parent_coords[0] + child_coords[0]) // 2, 
+                                (parent_coords[1] + child_coords[1]) // 2)
+                    mid_points.append(mid_point)
+                    
+                    # Add child node's name
+                    child_names.append(self.nodes[child].name)
+                    
+                    # Continue traversing if the child has children
+                    if child_children:
+                        stack.append({child: child_children})
 
-        nodes = []  # Holds node info (position, text, color)
+        # Prepare node data (position, text, color)
+        nodes = []
         for n, c in coords.items():
             node = self.nodes[n]
             if node.is_leaf:
                 text = node.klase
-                elipse_col = (240, 255, 240)
-                text_col = "black"
             else:
-                elipse_col = (105, 105, 105)
-                text_col = "white"
                 text = node.splitting_attrib or node.name
-            nodes.append((c, text, elipse_col, text_col))  # (position, text, ellipse color, text color)
+            nodes.append((c, text, node.is_leaf))
         
-        return lines, nodes, img_width, img_height
+        return lines, nodes, img_width, img_height, mid_points, child_names
+
 
     # A: visualize function for PIL (returns a PIL image)
     def visualize(self):
-        lines, nodes, w, h = self.pug()
 
-        # Set up image dimensions
-        img_width = w
-        img_height = h
-        img = Image.new('RGB', (img_width, img_height), color=(105, 105, 105))
+        colors={"back":"#006769", "light":"#E6FF94", "middle":"#40A578", "prim":"#9DDE8B", "white":"#ffffff"}
+
+        lines, nodes, w, h, mid_points, child_names = self.listsForVisualization()
+
+        print(nodes)
+
+        print(child_names)
+
+
+        img = Image.new('RGB', (w, h), color=colors["back"])
         draw = ImageDraw.Draw(img)
         
         # Draw the lines first (edges between nodes)
         for line in lines:
-            draw.line(line, fill="white", width=5)
+            draw.line(line, fill=colors["middle"], width=7)
         
         # Draw the nodes (ellipses) and the text
-        radius = 40
-        font_size = 25
-        font = ImageFont.truetype(r"files\fonts\Roboto\Roboto-Medium.ttf", font_size)
+        radius = 100
+        font_size = 45
+        font = ImageFont.truetype(r"files\fonts\Roboto\Roboto-Bold.ttf", font_size)
         
         for node in nodes:
-            (x, y), text, ellipse_color, text_color = node
-            draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=ellipse_color)
-            draw.text((x, y), text, fill=text_color, anchor="mm", font=font)
+            (x, y), text, is_leaf = node
+            
+            coords=(x - radius, y - radius, x + radius, y + radius)
+
+            if is_leaf:
+                draw.ellipse(coords, fill=colors["prim"])
+
+                text_size = draw.textsize(text, font=font)
+            
+                # Define the rectangle coordinates (x, y) are the center coordinates
+                rect_x0 = x - text_size[0] // 2 - 10  # 5 is padding
+                rect_y0 = y - text_size[1] // 2 - 5  # 5 is padding
+                rect_x1 = x + text_size[0] // 2 + 10
+                rect_y1 = y + text_size[1] // 2 + 5
+                
+                # Draw the blue rectangle
+                draw.rectangle([rect_x0, rect_y0, rect_x1, rect_y1], fill=colors["prim"])
+
+                draw.text((x, y), text, fill=colors["back"], anchor="mm", font=font)
+            else:
+                draw.ellipse(coords, fill=colors["back"])
+                draw.text((x, y), text, fill=colors["white"], anchor="mm", font=font)
+
+        for n, point in enumerate(mid_points):
+            (x, y) = point
+            
+            # Get the size of the text to determine the rectangle dimensions
+            text_size = draw.textsize(child_names[n], font=font)
+            
+            # Define the rectangle coordinates (x, y) are the center coordinates
+            rect_x0 = x - text_size[0] // 2 - 5  # 5 is padding
+            rect_y0 = y - text_size[1] // 2 - 5  # 5 is padding
+            rect_x1 = x + text_size[0] // 2 + 5
+            rect_y1 = y + text_size[1] // 2 + 5
+            
+            # Draw the blue rectangle
+            draw.rectangle([rect_x0, rect_y0, rect_x1, rect_y1], fill=colors["back"])
+            
+            # Draw the text on top of the rectangle
+            draw.text((x, y), child_names[n], fill=colors["light"], anchor="mm", font=font)
         
         return img
 
     # B: visualizeSVG function for svgwrite (returns an svgwrite object)
     def visualizeSVG(self):
-        lines, nodes, w, h = self.pug()
-
-        # Set up SVG drawing dimensions
+        # Get visualization data including mid_points and child_names
+        lines, nodes, w, h, mid_points, child_names = self.listsForVisualization()
+        
+        # Define inverted B&W color scheme
+        colors = {
+            "back": "#FFFFFF",    # White background (inverted)
+            "light": "#000000",   # Black text (inverted)
+            "middle": "#808080",  # Gray for lines (unchanged)
+            "prim": "#000000",    # Black for leaf nodes (inverted)
+            "white": "#000000"    # Black (inverted)
+        }
+        
+        # Scale down parameters
+        scale = 0.7  # 70% of original size
+        w = int(w * scale)
+        h = int(h * scale)
+        radius = int(70 * scale)  # Scaled down from 100
+        font_size = int(32 * scale)  # Scaled down from 45
+        
+        # Set up SVG drawing
         dwg = svgwrite.Drawing(size=(w, h))
+        
+        # Create background rectangle
+        dwg.add(dwg.rect(insert=(0, 0), size=(w, h), fill=colors["back"]))
         
         # Draw the lines first (edges between nodes)
         for line in lines:
-            dwg.add(dwg.line(start=line[0], end=line[1], stroke=svgwrite.rgb(255, 255, 255), stroke_width=5))
+            # Scale the line coordinates
+            start = (int(line[0][0] * scale), int(line[0][1] * scale))
+            end = (int(line[1][0] * scale), int(line[1][1] * scale))
+            dwg.add(dwg.line(
+                start=start,
+                end=end,
+                stroke=colors["middle"],
+                stroke_width=int(7 * scale)
+            ))
         
-        # Draw the nodes (circles) and the text
-        radius = 40
-        font_size = 25
-        
+        # Draw the nodes (circles) and text
         for node in nodes:
-            (x, y), text, ellipse_color, text_color = node
-            dwg.add(dwg.circle(center=(x, y), r=radius, fill=svgwrite.rgb(*ellipse_color)))
-            dwg.add(dwg.text(text, insert=(x, y), text_anchor="middle", alignment_baseline="middle", font_size=font_size, fill=svgwrite.rgb(0, 0, 0) if text_color == 'black' else 'white'))
+            (x, y), text, is_leaf = node
+            # Scale coordinates
+            x = int(x * scale)
+            y = int(y * scale)
+            
+            if is_leaf:
+                # Leaf nodes
+                # Add circle
+                dwg.add(dwg.circle(
+                    center=(x, y),
+                    r=radius,
+                    fill=colors["prim"]
+                ))
+                
+                # Calculate text size (approximate for SVG)
+                text_width = len(text) * (font_size * 0.6)
+                text_height = font_size * 1.2
+                
+                # Add rectangle behind text
+                rect_x0 = x - text_width/2 - 10 * scale
+                rect_y0 = y - text_height/2 - 5 * scale
+                rect_width = text_width + 20 * scale
+                rect_height = text_height + 10 * scale
+                
+                dwg.add(dwg.rect(
+                    insert=(rect_x0, rect_y0),
+                    size=(rect_width, rect_height),
+                    fill=colors["prim"]
+                ))
+                
+                # Add text
+                dwg.add(dwg.text(
+                    text,
+                    insert=(x, y),
+                    font_size=font_size,
+                    font_family="Roboto-Bold",
+                    text_anchor="middle",
+                    dominant_baseline="middle",
+                    fill=colors["back"]  # White text on black background
+                ))
+            else:
+                # Non-leaf nodes
+                dwg.add(dwg.circle(
+                    center=(x, y),
+                    r=radius,
+                    fill=colors["back"],
+                    stroke=colors["light"],
+                    stroke_width=int(2 * scale)
+                ))
+                
+                dwg.add(dwg.text(
+                    text,
+                    insert=(x, y),
+                    font_size=font_size,
+                    font_family="Roboto-Bold",
+                    text_anchor="middle",
+                    dominant_baseline="middle",
+                    fill=colors["light"]
+                ))
+        
+        # Add child names at midpoints
+        for n, point in enumerate(mid_points):
+            (x, y) = point
+            # Scale coordinates
+            x = int(x * scale)
+            y = int(y * scale)
+            text = child_names[n]
+            
+            # Calculate text size (approximate for SVG)
+            text_width = len(text) * (font_size * 0.6)
+            text_height = font_size * 1.2
+            
+            # Add rectangle behind text
+            rect_x0 = x - text_width/2 - 5 * scale
+            rect_y0 = y - text_height/2 - 5 * scale
+            rect_width = text_width + 10 * scale
+            rect_height = text_height + 10 * scale
+            
+            dwg.add(dwg.rect(
+                insert=(rect_x0, rect_y0),
+                size=(rect_width, rect_height),
+                fill=colors["back"],
+                stroke=colors["light"],
+                stroke_width=int(1 * scale)
+            ))
+            
+            # Add text
+            dwg.add(dwg.text(
+                text,
+                insert=(x, y),
+                font_size=font_size,
+                font_family="Roboto-Bold",
+                text_anchor="middle",
+                dominant_baseline="middle",
+                fill=colors["light"]
+            ))
         
         return dwg
-
 
 
     def train(self):
@@ -433,22 +608,25 @@ class Tree:
             
             for key, node in cur_stack_item.items():
 
-                print(f"I am looking at {node}")
+                #print(f"I am looking at {node}")
 
                 entries=node.training_entries
+
                 if not entries.isUniform():
                     split_by=informationGain(entries)
 
-                    print(f"I decided to split by {split_by}")
+                    node.splitting_attrib=split_by
+
+                    #print(f"I decided to split by {split_by}")
 
                     splited=entries.split(split_by)
                     
                     for newname, newentries in splited.items():
-                        sub_node_id=self.addSubNodeTo(Node(newname, newentries, split_by), key)
+                        sub_node_id=self.addSubNodeTo(Node(newname, newentries, ''), key)
 
                         stack.append({sub_node_id:self.nodes[sub_node_id]})
 
-                        print(f"    I got {newname} with {len(newentries)}")
+                        #print(f"    I got {newname} with {len(newentries)}")
                     
 
             stack.pop(0)

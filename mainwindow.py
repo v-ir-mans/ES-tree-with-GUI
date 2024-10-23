@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
         self.ui.mermaidButton.clicked.connect(self.marmaidToClipboard)
         self.ui.saveptlButton.clicked.connect(self.savePTL)
         self.ui.savevisButton.clicked.connect(self.saveVisualization)
+        self.ui.savevisSVGButton.clicked.connect(self.saveVisualizationSVG)
 
 
 
@@ -41,6 +42,7 @@ class MainWindow(QMainWindow):
     def marmaidToClipboard(self):
         if self.tree.is_trained:
             pyperclip.copy(self.tree.mermaid())
+            self.status(f"Mermaid copied")
     def openCSV(self):
 
         #path=bf.open_file_dialog(self)
@@ -148,6 +150,16 @@ class MainWindow(QMainWindow):
             qt_image.save(save_path, "PNG")
 
             self.status(f"Image saved in {save_path}")
+
+    def saveVisualizationSVG(self):
+        save_path = bf.save_file_dialog(self, "svg", "SVG Files (*.svg);;All Files (*)", "koks")
+
+        if save_path:
+            svg = self.tree.visualizeSVG()
+
+            svg.saveas(save_path, True)
+
+            self.status(f"SVG saved in {save_path}")
 
     def status(self, messege):
         self.statusBar().showMessage(messege, timeout=5000) 

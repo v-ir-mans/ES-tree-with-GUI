@@ -245,7 +245,14 @@
         <item>
          <widget class="QPushButton" name="savevisButton">
           <property name="text">
-           <string>Saglapāt koka vizualizāciju</string>
+           <string>Saglapāt koku png</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="savevisSVGButton">
+          <property name="text">
+           <string>Saglapāt koku svg</string>
           </property>
          </widget>
         </item>
