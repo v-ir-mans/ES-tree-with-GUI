@@ -45,9 +45,9 @@ class MainWindow(QMainWindow):
             self.status(f"Mermaid copied")
     def openCSV(self):
 
-        #path=bf.open_file_dialog(self)
+        path=bf.open_file_dialog(self)
 
-        path=r"C:\Users\olive\Documents\2darbs\Backend\data\training\data.csv"
+        #path=r"C:\Users\olive\Documents\2darbs\Backend\data\training\data.csv"
         
         if path:
             entries=treef.read_csv_to_entries(path)
