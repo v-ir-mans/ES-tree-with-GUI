@@ -29,35 +29,37 @@ def calcEntropy(biežumi:list):
 
 
 
-def informationGain(entries_list):
+def informationGain(entries_list, saveLogic):
 
     gains={}
 
     full_sum=len(entries_list)
-    print(entries_list)
-
-    print(f"\nHi. I am information gain function")
-    print(f"\nThere are {full_sum} entries")
-
+    
+    #print(entries_list)
 
     for a in entries_list.getAttrib():
 
-        print(f"I am looking at attribute {a}")
+        saveLogic(f"\n    Aplūkoju atribūtu '{a}'")
+        saveLogic(f"        Izveidoju biežumu tabulu:")
 
         BTable=entries_list.createBTable(a)
 
         for b in BTable:
-            print(b, list(BTable[b].values()))
+            saveLogic(f"\t\t{b}:\t{list(BTable[b].values())}")
 
         information_gain=calcEntropy(list(BTable["xj"].values()))
 
-        print(f"Entropija visam ir {information_gain}")
+        #print(f"Entropija visam ir {information_gain}")
 
         for key, val in BTable.items():
 
             if key!="xj":
                 row=list(val.values())
                 information_gain-=(sum(row)/full_sum)*calcEntropy(row)
+
+        saveLogic(f"\tInformation Gain sanāca: {information_gain}")
+        if information_gain==0:
+            saveLogic(f"\tKas ir loģiski. Šo varētu optimizēt un neizskatīt atribūtus ar entropiju 0. Armand!")
 
         gains[a]=information_gain
 
@@ -89,8 +91,8 @@ class Entry_list:
 
     def createBTable(self, attribute):
        
-        print(f"\nHi. I am making BTable")
-        print(f"I am not crazy I have {len(self.entries)} entries")
+        #print(f"\nHi. I am making BTable")
+        #print(f"I am not crazy I have {len(self.entries)} entries")
 
         klases=self.getKlases()
         
@@ -178,7 +180,7 @@ class Node:
       self.klase=self.training_entries.getKlases()[0]
     
     def __str__(self) -> str:
-        return f"node.{self.name} split by {self.splitting_attrib} has {len(self.training_entries)} and is {self.is_leaf}"
+        return f"node.{self.name}"
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -194,6 +196,8 @@ class Tree:
             self.training_entries = entries
         else:
             self.training_entries = None  # or some default behavior if needed
+
+        self.logic_text=""
 
     # Save the Tree object as a pickle file
     def save_as_pickle(self, file_path):
@@ -596,6 +600,8 @@ class Tree:
         
         return dwg
 
+    def saveLogic(self, text):
+        self.logic_text+=f"\n{text}"
 
     def train(self):
         
@@ -603,35 +609,54 @@ class Tree:
         
         stack=[{root_id:self.nodes[root_id]}]
 
+        self.saveLogic(f"Čaviņa. Tātad jums vajag koku, ja? Tulīt būs!")
+        self.saveLogic(f"Izveidoju saknes mezglu ar id {root_id}")
+
         while len(stack)>0:
             cur_stack_item=stack[0]
             
             for key, node in cur_stack_item.items():
 
-                #print(f"I am looking at {node}")
+                self.saveLogic(f"Aplūkoju mezglu {node} ar id {key}")
+
+                if node.is_leaf:
+                    self.saveLogic(f"Tas ir lapas mezgls. Super! ☘️😃")
+                else:
+                    self.saveLogic(f"Tas nav lapas mezgls, līdz ar to, to nāksies sašķelt.")
 
                 entries=node.training_entries
 
-                if not entries.isUniform():
-                    split_by=informationGain(entries)
+                if not node.is_leaf:
+
+                    self.saveLogic(f"Šajā mezglā ir {len(entries)} vienumi")
+                    self.saveLogic(f"Aprēķinu Information gain visiem atribūtiem")
+
+                    split_by=informationGain(entries, self.saveLogic)
+
+                    self.saveLogic(f"Mezglu vajag sasķelt izmantojot atribūtu '{split_by}'.")
 
                     node.splitting_attrib=split_by
 
-                    #print(f"I decided to split by {split_by}")
-
                     splited=entries.split(split_by)
                     
+                    self.saveLogic(f"Izveidojās {len(splited)} jauni mezgli:")
+
                     for newname, newentries in splited.items():
+
+
                         sub_node_id=self.addSubNodeTo(Node(newname, newentries, ''), key)
+
+                        self.saveLogic(f"   {self.nodes[sub_node_id]} (id={sub_node_id})")
 
                         stack.append({sub_node_id:self.nodes[sub_node_id]})
 
                         #print(f"    I got {newname} with {len(newentries)}")
                     
-
+            self.saveLogic("\n")
             stack.pop(0)
 
         self.is_trained=True
+        self.saveLogic("Koks ir izaudzis! 🌳")
 
 
 def read_csv_to_entries(path):

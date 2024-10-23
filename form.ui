@@ -21,7 +21,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>10</y>
+      <y>0</y>
       <width>861</width>
       <height>51</height>
      </rect>
@@ -192,25 +192,38 @@
          <height>359</height>
         </rect>
        </property>
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QTextEdit" name="logicText">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>40</y>
+          <width>741</width>
+          <height>321</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+       </widget>
+       <widget class="QLabel" name="bigheading_2">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>10</y>
-          <width>721</width>
-          <height>28</height>
+          <y>0</y>
+          <width>731</width>
+          <height>31</height>
          </rect>
         </property>
-        <item>
-         <property name="text">
-          <string>Test1</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Test</string>
-         </property>
-        </item>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Datora loģika, veidojot koku:</string>
+        </property>
        </widget>
       </widget>
      </widget>
@@ -245,21 +258,14 @@
         <item>
          <widget class="QPushButton" name="savevisButton">
           <property name="text">
-           <string>Saglapāt koku png</string>
+           <string>Saglapāt koku .png</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="savevisSVGButton">
           <property name="text">
-           <string>Saglapāt koku svg</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="saveptlButton">
-          <property name="text">
-           <string>Saglabāt .ptl</string>
+           <string>Saglapāt koku .svg</string>
           </property>
          </widget>
         </item>
@@ -270,10 +276,30 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="saveptlButton">
+          <property name="text">
+           <string>Saglabāt .ptl</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </widget>
     </widget>
+   </widget>
+   <widget class="QLabel" name="showoffabel">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>40</y>
+      <width>171</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>veidojis Armands Vagalis</string>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

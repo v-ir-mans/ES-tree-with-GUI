@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
-    QHeaderView, QLabel, QMainWindow, QPushButton,
-    QScrollArea, QSizePolicy, QStatusBar, QTableWidget,
-    QTableWidgetItem, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QHeaderView,
+    QLabel, QMainWindow, QPushButton, QScrollArea,
+    QSizePolicy, QStatusBar, QTableWidget, QTableWidgetItem,
+    QTextEdit, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -30,7 +30,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setEnabled(True)
         self.bigheading = QLabel(self.centralwidget)
         self.bigheading.setObjectName(u"bigheading")
-        self.bigheading.setGeometry(QRect(20, 10, 861, 51))
+        self.bigheading.setGeometry(QRect(20, 0, 861, 51))
         font = QFont()
         font.setPointSize(22)
         self.bigheading.setFont(font)
@@ -93,11 +93,18 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents_3 = QWidget()
         self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
         self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 739, 359))
-        self.comboBox = QComboBox(self.scrollAreaWidgetContents_3)
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.setObjectName(u"comboBox")
-        self.comboBox.setGeometry(QRect(10, 10, 721, 28))
+        self.logicText = QTextEdit(self.scrollAreaWidgetContents_3)
+        self.logicText.setObjectName(u"logicText")
+        self.logicText.setGeometry(QRect(0, 40, 741, 321))
+        font1 = QFont()
+        font1.setPointSize(11)
+        self.logicText.setFont(font1)
+        self.bigheading_2 = QLabel(self.scrollAreaWidgetContents_3)
+        self.bigheading_2.setObjectName(u"bigheading_2")
+        self.bigheading_2.setGeometry(QRect(10, 0, 731, 31))
+        font2 = QFont()
+        font2.setPointSize(14)
+        self.bigheading_2.setFont(font2)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_3)
         self.buttonBottomFrame = QFrame(self.scrollAreaWidgetContents_2)
         self.buttonBottomFrame.setObjectName(u"buttonBottomFrame")
@@ -121,17 +128,20 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.savevisSVGButton)
 
-        self.saveptlButton = QPushButton(self.horizontalLayoutWidget)
-        self.saveptlButton.setObjectName(u"saveptlButton")
-
-        self.horizontalLayout.addWidget(self.saveptlButton)
-
         self.mermaidButton = QPushButton(self.horizontalLayoutWidget)
         self.mermaidButton.setObjectName(u"mermaidButton")
 
         self.horizontalLayout.addWidget(self.mermaidButton)
 
+        self.saveptlButton = QPushButton(self.horizontalLayoutWidget)
+        self.saveptlButton.setObjectName(u"saveptlButton")
+
+        self.horizontalLayout.addWidget(self.saveptlButton)
+
         self.optionbox.setWidget(self.scrollAreaWidgetContents_2)
+        self.showoffabel = QLabel(self.centralwidget)
+        self.showoffabel.setObjectName(u"showoffabel")
+        self.showoffabel.setGeometry(QRect(20, 40, 171, 20))
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -147,12 +157,11 @@ class Ui_MainWindow(object):
         self.bigheading.setText(QCoreApplication.translate("MainWindow", u"Information gain l\u0113mumu koks", None))
         self.csvButton.setText(QCoreApplication.translate("MainWindow", u"Pievienot .csv", None))
         self.ptlButton.setText(QCoreApplication.translate("MainWindow", u"Pievienot .ptl", None))
-        self.comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Test1", None))
-        self.comboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"Test", None))
-
-        self.savevisButton.setText(QCoreApplication.translate("MainWindow", u"Saglap\u0101t koku png", None))
-        self.savevisSVGButton.setText(QCoreApplication.translate("MainWindow", u"Saglap\u0101t koku svg", None))
-        self.saveptlButton.setText(QCoreApplication.translate("MainWindow", u"Saglab\u0101t .ptl", None))
+        self.bigheading_2.setText(QCoreApplication.translate("MainWindow", u"Datora lo\u0123ika, veidojot koku:", None))
+        self.savevisButton.setText(QCoreApplication.translate("MainWindow", u"Saglap\u0101t koku .png", None))
+        self.savevisSVGButton.setText(QCoreApplication.translate("MainWindow", u"Saglap\u0101t koku .svg", None))
         self.mermaidButton.setText(QCoreApplication.translate("MainWindow", u"Kop\u0113t mermaid", None))
+        self.saveptlButton.setText(QCoreApplication.translate("MainWindow", u"Saglab\u0101t .ptl", None))
+        self.showoffabel.setText(QCoreApplication.translate("MainWindow", u"veidojis Armands Vagalis", None))
     # retranslateUi
 

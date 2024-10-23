@@ -63,6 +63,7 @@ class MainWindow(QMainWindow):
 
             if self.tree.is_trained:
                 self.ui.buttonBottomFrame.setEnabled(True)
+                self.ui.logicText.setText(self.tree.logic_text)
 
             '''
             pil_img=self.tree.visualize()
@@ -91,6 +92,7 @@ class MainWindow(QMainWindow):
 
             if self.tree.is_trained:
                 self.ui.buttonBottomFrame.setEnabled(True)
+                self.ui.logicText.setText(self.tree.logic_text)
 
             '''
             pil_img=self.tree.visualize()
