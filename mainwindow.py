@@ -29,6 +29,7 @@ class MainWindow(QMainWindow):
 
         self.ui.csvButton.clicked.connect(self.openCSV)
         self.ui.ptlButton.clicked.connect(self.openPTL)
+        self.ui.excelButton.clicked.connect(self.openExcel)
 
         self.ui.mermaidButton.clicked.connect(self.marmaidToClipboard)
         self.ui.saveptlButton.clicked.connect(self.savePTL)
@@ -43,66 +44,48 @@ class MainWindow(QMainWindow):
         if self.tree.is_trained:
             pyperclip.copy(self.tree.mermaid())
             self.status(f"Mermaid copied")
-    def openCSV(self):
-
-        path=bf.open_file_dialog(self)
-
-        #path=r"C:\Users\olive\Documents\2darbs\Backend\data\training\data.csv"
-        
-        if path:
-            entries=treef.read_csv_to_entries(path)
-
-            self.tree=treef.Tree(entries)
-
-            self.ui.optionbox.setEnabled(True)
-            self.ui.dataTableScroll.setEnabled(True)
-
-            self.createDataTable()
-
-            self.tree.train()
-
-            if self.tree.is_trained:
-                self.ui.buttonBottomFrame.setEnabled(True)
-                self.ui.logicText.setText(self.tree.logic_text)
-
-            '''
-            pil_img=self.tree.visualize()
-            q_image = self.pil_image_to_qt(pil_img)
-            pixmap = QPixmap.fromImage(q_image)
-            '''
-
-        else:
-            self.ui.optionbox.setEnabled(False)
-            self.ui.dataTableScroll.setEnabled(False)
     
-    def openPTL(self):
-
-        path=bf.open_file_dialog(self, "Pickle Files (*.ptl);;All Files (*)")
-        
+    def open_file_and_initialize_tree(self, path):
         if path:
-
-            self.tree=treef.Tree.load_from_pickle(path)
-
+            # Enable UI elements
             self.ui.optionbox.setEnabled(True)
             self.ui.dataTableScroll.setEnabled(True)
 
+            # Initialize the tree, create data table, and train
             self.createDataTable()
-
             self.tree.train()
 
+            # Update UI based on training status
             if self.tree.is_trained:
                 self.ui.buttonBottomFrame.setEnabled(True)
                 self.ui.logicText.setText(self.tree.logic_text)
-
-            '''
-            pil_img=self.tree.visualize()
-            q_image = self.pil_image_to_qt(pil_img)
-            pixmap = QPixmap.fromImage(q_image)
-            '''
-
         else:
+            # Disable UI elements if no path is provided
             self.ui.optionbox.setEnabled(False)
             self.ui.dataTableScroll.setEnabled(False)
+
+    def openCSV(self):
+        path = bf.open_file_dialog(self)
+        if path:
+            entries = treef.read_csv_to_entries(path)
+            self.tree = treef.Tree(entries)
+            self.open_file_and_initialize_tree(path)
+
+    def openPTL(self):
+        path = bf.open_file_dialog(self, "Pickle Files (*.ptl);;All Files (*)")
+        if path:
+            self.tree = treef.Tree.load_from_pickle(path)
+            self.open_file_and_initialize_tree(path)
+
+    def openExcel(self):
+        path = bf.open_file_dialog(self, "Excel Files (*.xls *.xlsx *.xlsm *.xlsb *.odf *.ods *.odt);;All Files (*)")
+        if path:
+            entries = treef.read_excel_to_entries(path)
+            self.tree = treef.Tree(entries)
+            self.open_file_and_initialize_tree(path)
+
+
+
 
     def pil_image_to_qt(self, pil_image):
         # Convert PIL Image to a byte array

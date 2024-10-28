@@ -39,13 +39,29 @@ class Ui_MainWindow(object):
         self.frame.setGeometry(QRect(20, 70, 761, 51))
         self.frame.setFrameShape(QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QFrame.Shadow.Raised)
-        self.csvButton = QPushButton(self.frame)
+        self.horizontalLayoutWidget_2 = QWidget(self.frame)
+        self.horizontalLayoutWidget_2.setObjectName(u"horizontalLayoutWidget_2")
+        self.horizontalLayoutWidget_2.setGeometry(QRect(0, 0, 761, 51))
+        self.horizontalLayout_2 = QHBoxLayout(self.horizontalLayoutWidget_2)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.csvButton = QPushButton(self.horizontalLayoutWidget_2)
         self.csvButton.setObjectName(u"csvButton")
-        self.csvButton.setGeometry(QRect(10, 10, 351, 29))
-        self.ptlButton = QPushButton(self.frame)
+
+        self.horizontalLayout_2.addWidget(self.csvButton)
+
+        self.excelButton = QPushButton(self.horizontalLayoutWidget_2)
+        self.excelButton.setObjectName(u"excelButton")
+        self.excelButton.setEnabled(True)
+
+        self.horizontalLayout_2.addWidget(self.excelButton)
+
+        self.ptlButton = QPushButton(self.horizontalLayoutWidget_2)
         self.ptlButton.setObjectName(u"ptlButton")
         self.ptlButton.setEnabled(True)
-        self.ptlButton.setGeometry(QRect(370, 10, 381, 29))
+
+        self.horizontalLayout_2.addWidget(self.ptlButton)
+
         self.dataTableScroll = QScrollArea(self.centralwidget)
         self.dataTableScroll.setObjectName(u"dataTableScroll")
         self.dataTableScroll.setEnabled(False)
@@ -156,6 +172,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.bigheading.setText(QCoreApplication.translate("MainWindow", u"Information gain l\u0113mumu koks", None))
         self.csvButton.setText(QCoreApplication.translate("MainWindow", u"Pievienot .csv", None))
+        self.excelButton.setText(QCoreApplication.translate("MainWindow", u"Pievienot Excel", None))
         self.ptlButton.setText(QCoreApplication.translate("MainWindow", u"Pievienot .ptl", None))
         self.bigheading_2.setText(QCoreApplication.translate("MainWindow", u"Datora lo\u0123ika, veidojot koku:", None))
         self.savevisButton.setText(QCoreApplication.translate("MainWindow", u"Saglap\u0101t koku .png", None))

@@ -16,6 +16,8 @@ import svgwrite
 
 import os, sys
 
+import pandas as pd
+
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for both source code and PyInstaller """
@@ -690,3 +692,28 @@ def read_csv_to_entries(path):
             entries.append(entry)
     return entries
 
+
+# ChatGPT 100%
+def read_excel_to_entries(path, sheet_name=0):
+    entries = Entry_list()
+    
+    # Read the Excel file into a DataFrame
+    df = pd.read_excel(path, sheet_name=sheet_name, dtype=str)
+    
+    # Iterate over each row in the DataFrame
+    for _, row in df.iterrows():
+        # Extract the first and last columns as id and klase, and convert them to strings
+        id_key, id = str(row.index[0]), str(row.iloc[0])
+        klase_key, klase = str(row.index[-1]), str(row.iloc[-1])
+        
+        # Create a dictionary of other columns except id and klase, ensuring all values are strings
+        other_columns_dict = {str(key): str(row[key]) for key in row.index if key != id_key and key != klase_key}
+        
+        # Convert the entire row to a dictionary with all values as strings
+        full_row = {str(key): str(value) for key, value in row.to_dict().items()}
+        
+        # Create and append an Entry object
+        entry = Entry(klase, id, other_columns_dict, full_row)
+        entries.append(entry)
+    
+    return entries
