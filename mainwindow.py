@@ -59,6 +59,9 @@ class MainWindow(QMainWindow):
             if self.tree.is_trained:
                 self.ui.buttonBottomFrame.setEnabled(True)
                 self.ui.logicText.setText(self.tree.logic_text)
+                self.ui.likumuText.setText(self.tree.getLaws())
+
+
         else:
             # Disable UI elements if no path is provided
             self.ui.optionbox.setEnabled(False)

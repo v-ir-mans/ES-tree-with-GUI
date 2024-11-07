@@ -16,7 +16,7 @@ import svgwrite
 
 import os, sys
 
-import pandas as pd
+from openpyxl import load_workbook
 
 
 def resource_path(relative_path):
@@ -310,6 +310,51 @@ class Tree:
             self.nodes[node_id]=node
 
         return node_id
+
+    def getAllLeaves(self):
+        leaves=[]
+
+        for key, n in self.nodes.items():
+            if n.is_leaf:
+                leaves.append(key)
+        
+        return leaves
+
+    def backtrackParents(self, key):
+        parents=[]
+        for i in range(len(key)-1):
+            parents.append(key[:i+1])
+        
+        return parents
+    
+    def lawFromKey(self, key):
+        parents=self.backtrackParents(key)
+
+        law="JA "
+
+        for n, p in enumerate(parents):
+            
+            curn=self.nodes[parents[n]]
+            
+            law+=f"'{curn.splitting_attrib}' "
+
+            if n<len(parents)-1:
+
+                law+=f"ir '{self.nodes[parents[n+1]].name}' UN "
+
+        law+=f"ir '{self.nodes[key].name}' TAD ieraksts pieder klase '{self.nodes[key].klase}'"
+            
+
+        return(law)
+
+    def getLaws(self):
+        leaves=self.getAllLeaves()
+
+        laws=""
+        for l in leaves:
+            laws+=self.lawFromKey(l)+"\n"
+
+        return laws
 
     def mermaid(self):
         mermaid_string="graph TD"
@@ -697,20 +742,27 @@ def read_csv_to_entries(path):
 def read_excel_to_entries(path, sheet_name=0):
     entries = Entry_list()
     
-    # Read the Excel file into a DataFrame
-    df = pd.read_excel(path, sheet_name=sheet_name, dtype=str)
+    # Load the workbook and select the sheet
+    workbook = load_workbook(filename=path, data_only=True)
+    if isinstance(sheet_name, int):
+        sheet = workbook.worksheets[sheet_name]
+    else:
+        sheet = workbook[sheet_name]
     
-    # Iterate over each row in the DataFrame
-    for _, row in df.iterrows():
+    # Get header row as column names
+    columns = [str(cell.value) for cell in sheet[1]]
+    
+    # Iterate over each row, starting from the second row (to skip headers)
+    for row in sheet.iter_rows(min_row=2, values_only=True):
         # Extract the first and last columns as id and klase, and convert them to strings
-        id_key, id = str(row.index[0]), str(row.iloc[0])
-        klase_key, klase = str(row.index[-1]), str(row.iloc[-1])
+        id_key, id = columns[0], str(row[0])
+        klase_key, klase = columns[-1], str(row[-1])
         
-        # Create a dictionary of other columns except id and klase, ensuring all values are strings
-        other_columns_dict = {str(key): str(row[key]) for key in row.index if key != id_key and key != klase_key}
+        # Create a dictionary of other columns except id and klase
+        other_columns_dict = {columns[i]: str(row[i]) for i in range(len(row)) if columns[i] != id_key and columns[i] != klase_key}
         
         # Convert the entire row to a dictionary with all values as strings
-        full_row = {str(key): str(value) for key, value in row.to_dict().items()}
+        full_row = {columns[i]: str(row[i]) for i in range(len(row))}
         
         # Create and append an Entry object
         entry = Entry(klase, id, other_columns_dict, full_row)

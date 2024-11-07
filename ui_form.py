@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1384, 591)
+        MainWindow.resize(1384, 872)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayoutMain = QVBoxLayout(self.centralwidget)
@@ -71,6 +71,7 @@ class Ui_MainWindow(object):
         self.optionbox.setWidgetResizable(True)
         self.scrollAreaWidgetContents_2 = QWidget()
         self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 675, 680))
         self.verticalLayoutOption = QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayoutOption.setObjectName(u"verticalLayoutOption")
         self.bigheading_2 = QLabel(self.scrollAreaWidgetContents_2)
@@ -125,14 +126,39 @@ class Ui_MainWindow(object):
         self.dataTableScroll.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 674, 680))
         self.verticalLayoutDataTable = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayoutDataTable.setObjectName(u"verticalLayoutDataTable")
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setObjectName(u"verticalLayout")
         self.dataTable = QTableWidget(self.scrollAreaWidgetContents)
+        if (self.dataTable.columnCount() < 5):
+            self.dataTable.setColumnCount(5)
+        if (self.dataTable.rowCount() < 5):
+            self.dataTable.setRowCount(5)
         self.dataTable.setObjectName(u"dataTable")
         self.dataTable.setRowCount(5)
         self.dataTable.setColumnCount(5)
 
-        self.verticalLayoutDataTable.addWidget(self.dataTable)
+        self.verticalLayout.addWidget(self.dataTable)
+
+        self.widget = QWidget(self.scrollAreaWidgetContents)
+        self.widget.setObjectName(u"widget")
+
+        self.verticalLayout.addWidget(self.widget)
+
+        self.likumuText = QTextEdit(self.scrollAreaWidgetContents)
+        self.likumuText.setObjectName(u"likumuText")
+        font3 = QFont()
+        font3.setPointSize(12)
+        font3.setBold(True)
+        self.likumuText.setFont(font3)
+        self.likumuText.viewport().setProperty(u"cursor", QCursor(Qt.CursorShape.OpenHandCursor))
+
+        self.verticalLayout.addWidget(self.likumuText)
+
+
+        self.verticalLayoutDataTable.addLayout(self.verticalLayout)
 
         self.dataTableScroll.setWidget(self.scrollAreaWidgetContents)
 
