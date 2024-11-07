@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
 from PySide6.QtGui import QImage, QIcon
 
 from functions import buttons as bf
-from functions import treefunc as treef
+from Tree import treefunc as treef
 
 import pyperclip
 
