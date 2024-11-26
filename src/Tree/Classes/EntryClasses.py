@@ -35,8 +35,7 @@ class Question:
         parts=better_question.split(":")
         parts.pop(0)
         better_question="".join(parts)
-        better_question="Vai"+better_question+"?"
-        better_question=better_question.replace("[", "").replace("]", "")
+        better_question=better_question.replace("[", "(").replace("]", ")").replace('\'', "").replace('\"', "")
         
         return better_question
     
@@ -238,7 +237,9 @@ class Entry_list:
         split_dict={"PL":Entry_list(),"PR":Entry_list()}
 
         for e in self.entries:
+
             value=e[attribute].value
+
             if question.ask(value)==True:
                 split_dict["PL"].append(e)
             else:

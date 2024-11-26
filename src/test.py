@@ -14,3 +14,5 @@ tree=Tree(entries=entries)
 
 tree.trainBinary()
 pyperclip.copy(tree.mermaid())
+
+print(tree.nodes["01"].prettyQuestion())
