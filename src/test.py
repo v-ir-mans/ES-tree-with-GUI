@@ -1,11 +1,16 @@
 from Tree.treeMain import Tree
 import Tree.functions.fileReading as filer
 from Tree.Classes.EntryClasses import Question
-entries=filer.read_csv_to_entries(r'.\test_data\data_test.csv')
-attribs=entries.getAttrib()
-print(attribs)
+
+import pyperclip
 
 
-for a in attribs:
-    entries.createAllAttributeBinaryBTables(a) 
-    break
+
+entries=filer.read_excel_to_entries(r'.\test_data\real.xlsx')
+
+
+
+tree=Tree(entries=entries)
+
+tree.trainBinary()
+pyperclip.copy(tree.mermaid())

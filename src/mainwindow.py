@@ -5,8 +5,9 @@ import random
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
 from PySide6.QtGui import QImage, QIcon
 
-from functions import buttons as bf
-from Tree import treefunc as treef
+from Tree.functions import buttons as bf
+from Tree import treeMain as treef
+from Tree.functions import fileReading as filer
 
 import pyperclip
 
@@ -16,7 +17,7 @@ import pyperclip
 # You need to run the following command to generate the ui_form.py file
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
-from ui_form import Ui_MainWindow
+from GUI.ui_form import Ui_MainWindow
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -53,7 +54,7 @@ class MainWindow(QMainWindow):
 
             # Initialize the tree, create data table, and train
             self.createDataTable()
-            self.tree.train()
+            self.tree.trainBinary()
 
             # Update UI based on training status
             if self.tree.is_trained:
@@ -70,7 +71,7 @@ class MainWindow(QMainWindow):
     def openCSV(self):
         path = bf.open_file_dialog(self)
         if path:
-            entries = treef.read_csv_to_entries(path)
+            entries = filer.read_csv_to_entries(path)
             self.tree = treef.Tree(entries)
             self.open_file_and_initialize_tree(path)
 
@@ -83,7 +84,7 @@ class MainWindow(QMainWindow):
     def openExcel(self):
         path = bf.open_file_dialog(self, "Excel Files (*.xls *.xlsx *.xlsm *.xlsb *.odf *.ods *.odt);;All Files (*)")
         if path:
-            entries = treef.read_excel_to_entries(path)
+            entries = filer.read_excel_to_entries(path)
             self.tree = treef.Tree(entries)
             self.open_file_and_initialize_tree(path)
 
@@ -117,8 +118,10 @@ class MainWindow(QMainWindow):
         table.setHorizontalHeaderLabels(columns)
 
         for y, e in enumerate(entries):
+
             for x, i in enumerate(e.attributes_dict.values()):
-                table.setItem(y, x, QTableWidgetItem(str(i)))
+                print(i)
+                table.setItem(y, x, QTableWidgetItem(str(i.value)))
             table.setItem(y, xlen-1, QTableWidgetItem(e.klase))
 
     def savePTL(self):

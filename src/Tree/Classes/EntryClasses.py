@@ -1,5 +1,6 @@
 from itertools import combinations
 import inspect
+from Tree.functions.calculations import calcEntropy
 
 class Attribute:
     def __init__(self, attribute_name, value):
@@ -29,7 +30,15 @@ class Question:
         return self.func(value)
 
     def __repr__(self):
-        return self.lambda_str
+        better_question=self.lambda_str
+
+        parts=better_question.split(":")
+        parts.pop(0)
+        better_question="".join(parts)
+        better_question="Vai"+better_question+"?"
+        better_question=better_question.replace("[", "").replace("]", "")
+        
+        return better_question
     
 class Entry:
     def __init__(self, klase, id, attributes:dict, row):
@@ -117,22 +126,79 @@ class Entry_list:
         for e in self.entries:
             value=e[attribute].value
             if question.ask(value)==True:
-                PL.append(value)
+                PL.append(e)
             else:
-                PR.append(value)
-
-        print(f"\n{question} : {len(PL)}/{len(PR)}")
+                PR.append(e)
         
-        return "BTable"
+        PR_table={}
+        PL_table={}
 
+        for k in self.getKlases():
+            PL_table[k]=0
+            PR_table[k]=0
+        
+        
+        for e in PL:
+            klase=e.klase
+            PL_table[klase]+=1
+        
+        for e in PR:
+            klase=e.klase
+            PR_table[klase]+=1
+
+        return {"PL":PL_table, "PR":PR_table}
+
+    def calculateQuestionValsForAttrib(self, attribute):
+
+
+        Btables=self.createAllAttributeBinaryBTables(attribute)
+
+
+        i={k:0 for k in self.getKlases()}
+        for e in self.entries:
+            i[e.klase]+=1
+
+        i=calcEntropy(i.values())
+
+        full_sum=len(self.entries)
+
+        vals=[]
+
+        for Bt in Btables:
+            table=Bt[1]
+            q=Bt[0]
+
+            PL_table=table["PL"]
+            PR_table=table["PR"]
+
+            pL=sum(PL_table.values())/full_sum
+            pR=sum(PR_table.values())/full_sum
+
+            itL=calcEntropy(PL_table.values())
+            itR=calcEntropy(PR_table.values())
+
+            delta_i=i-pL*itL-pR*itR
+
+            vals.append([delta_i, q])
+        
+        return vals
+    
     def createAllAttributeBinaryBTables(self, attribute):
         questions=self.constructQuestions(attribute)
 
+        Btables=[]
+
         for q in questions:
-            self.createBinaryBTable(attribute, q)
+            Bt=self.createBinaryBTable(attribute, q)
+            Btables.append([q, Bt])
+
+        return Btables
 
     def constructQuestions(self, attribute):
+
+        
         unique=self.findUnique(attribute)
+
 
         question_list=[]
 
@@ -142,6 +208,7 @@ class Entry_list:
             for u in unique[:-1]:
                 question=Question(f"lambda x: x<={u}")
                 question_list.append(question)
+
         else:
             combinations_list=[]
             for i in range(1, len(unique)):
@@ -149,7 +216,7 @@ class Entry_list:
                 combinations_list.extend(comb)
             
             for c in combinations_list:
-                question=Question(f"lambda x: x in {c}?")
+                question=Question(f"lambda x: x in {c}")
                 question_list.append(question)
         return question_list
 
@@ -159,10 +226,24 @@ class Entry_list:
         split_dict={i:Entry_list() for i in self.find_unique(attribute)}
 
         for e in self.entries:
-
+            
             val=e[attribute].value
 
             split_dict[str(val)].append(e)
+        
+        return split_dict
+    
+    def splitByQuestion(self, attribute, question):
+        
+        split_dict={"PL":Entry_list(),"PR":Entry_list()}
+
+        for e in self.entries:
+            value=e[attribute].value
+            if question.ask(value)==True:
+                split_dict["PL"].append(e)
+            else:
+                split_dict["PR"].append(e)
+            
         
         return split_dict
 
